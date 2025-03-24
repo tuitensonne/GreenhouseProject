@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE `Controller` ADD COLUMN `value` INTEGER NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE `ControllerRecord` ADD COLUMN `status` INTEGER NOT NULL DEFAULT 0,
+    MODIFY `value` INTEGER NULL DEFAULT 0;

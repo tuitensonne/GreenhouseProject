@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model GreenHouse {
+  GID          Int     @id @default(autoincrement())
+  name        String
+  location    String
+
+  sensors     Sensor[]
+  controllers Controller[]
+}
+
+model User {
+  ID        Int    @id @default(autoincrement())
+  email     String @unique @db.VarChar(100)
+  password  String @db.VarChar(100)
+  username  String @db.VarChar(100)
+
+  controllerRecord ControllerRecord[]
+  controller      Controller[] 
+  sensor         Sensor[]
+}
+
+model Sensor {
+  SID           Int           @id @default(autoincrement())
+  maxValue      Int?
+  deviceType          String
+  sensorType          String
+  topic         String        @unique
+  records     SensorRecord[]
+
+  greenHouse  GreenHouse    @relation(fields: [greenHouseID], references: [GID])
+  greenHouseID Int
+
+  user        User?         @relation(fields: [userID], references: [ID])
+  userID      Int?
+}
+
+model SensorRecord {
+  SRID          Int         @id @default(autoincrement())
+  value         Int
+  dateCreated   DateTime
+
+  device      Sensor        @relation(fields: [deviceID] , references: [SID])
+  deviceID      Int
+}
+
+model Controller {
+  CID           Int           @id @default(autoincrement())
+  deviceType          String
+  controllerType      String
+  status        Int           @default(0) // 0: off, 1: on
+  value         Int?           @default(0) // between 0-100
+  topic         String        @unique
+  records     ControllerRecord[]
+
+  greenHouse  GreenHouse    @relation(fields: [greenHouseID], references: [GID])
+  greenHouseID Int
+
+  user        User?         @relation(fields: [userID], references: [ID])
+  userID      Int?
+}
+
+model ControllerRecord {
+  CRID          Int         @id @default(autoincrement())
+  status        Int           @default(0) // 0: off, 1: on
+  value         Int?           @default(0) // between 0-100
+  dateCreated   DateTime
+
+  device      Controller    @relation(fields: [deviceID] , references: [CID])
+  deviceID    Int
+
+  user        User?         @relation(fields: [userID], references: [ID])
+  userID      Int?
+}
