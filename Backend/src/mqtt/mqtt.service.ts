@@ -36,19 +36,19 @@ export class MqttService implements OnModuleDestroy {
 					const record = await this.prisma.sensorRecord.create({
 						data: {
 							value: data,
-							dateCreated: new Date(), 
+							dateCreated: new Date(),
 							device: {
 								connect: { SID: device.SID }
 							}
 						}
 					})
+					record['sensorType'] = device.sensorType;
+					if(flag) {
+						this.eventSubject.next([record]);
+					}
 				} catch (err) { 
 					console.error(err);
 					throw new InternalServerErrorException("An error occurred! Please try again.");
-				}
-
-				if(flag) {
-					this.eventSubject.next({ device });
 				}
 			}
 		});
