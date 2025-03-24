@@ -4,17 +4,17 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [JwtModule.register({
-    secret: process.env.JWT_SERCRET_KEY,
-    global: true,
-    signOptions: {expiresIn: '2 days'}
-  })],
+  imports: [
+    JwtModule.registerAsync({
+      useFactory: async () => ({
+        secret: process.env.JWT_SECRET_KEY, 
+        signOptions: { expiresIn: '2d' }, 
+      }),
+      global: true,
+    }),
+  ],
   controllers: [AuthController],
   providers: [AuthService],
 })
-export class AuthModule {
-  constructor() {
-    console.log(process.env.JWT_SERCRET_KEY);
-  }
-}
+export class AuthModule {}
  
