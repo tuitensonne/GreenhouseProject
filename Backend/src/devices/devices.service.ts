@@ -25,7 +25,7 @@ export class DevicesService {
 
         // save record to database
         try {
-            const record = await this.prisma.controllerRecord.create({
+            await this.prisma.controllerRecord.create({
                 data: {
                     status: devicesDto.status,
                     value: devicesDto.value,
@@ -36,6 +36,14 @@ export class DevicesService {
                     user: {
                         connect: { ID: devicesDto.userId }
                     }
+                }
+            })
+            
+            await this.prisma.controller.update({
+                where: { CID: devicesDto.deviceId },
+                data: {
+                    status: devicesDto.status,
+                    value: devicesDto.value
                 }
             })
         } catch (error) {
