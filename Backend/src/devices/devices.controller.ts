@@ -1,6 +1,6 @@
-import { Body, Controller, Post, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { DevicesService } from './devices.service';
-import { CreateControllerDTO, CreateSensorDTO, DeviceAdafruitDto } from './dto';
+import { CreateControllerDTO, CreateDeviceSchedulerDTO, CreateSensorDTO, DeviceAdafruitDto } from './dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('devices')
@@ -33,12 +33,30 @@ export class DevicesController {
     return this.devicesService.addSensor(device);
   }
 
-  // @UseGuards(AuthGuard)
-  // @Get('getListDevices')
-  // async getListDevices(
-  //   @Query('pageOffset') pageOffset: number = 1, 
-  //   @Query('limit') limit: number = 10
-  // ) {
-  //   return this.devicesService.getListDevices(+pageOffset, +limit);
-  // }
+  @UseGuards(AuthGuard)
+  @Post('createScheduler')
+  async createScheduler(@Body() device: CreateDeviceSchedulerDTO) {
+    return this.devicesService.createScheduler(device);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('getControllers')
+  async getControllers(
+    @Query('greenhouseId') GID: number,
+    @Query('pageOffset') pageOffset: number = 1,
+    @Query('limit') limit: number = 10
+  ) {
+    return this.devicesService.getControllers(GID, pageOffset, limit);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('getSensors')
+  async getSensors(
+    @Query('greenhouseId') GID: number,
+    @Query('pageOffset') pageOffset: number = 1,
+    @Query('limit') limit: number = 10
+  ) {
+    return this.devicesService.getSensors(GID, pageOffset, limit);
+  }
+
 }

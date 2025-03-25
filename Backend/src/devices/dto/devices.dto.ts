@@ -1,4 +1,5 @@
-import { IsInt, IsOptional, IsString} from "class-validator";
+import { IsDate, IsInt, IsOptional, IsString} from "class-validator";
+import exp from "constants";
 
 export class DeviceAdafruitDto {
     @IsInt()
@@ -57,4 +58,24 @@ export class CreateControllerDTO {
     @IsString()
     controllerType: string;
 
+}
+
+export class CreateDeviceSchedulerDTO {
+    @IsInt()
+    deviceId: number;
+
+    @IsInt()
+    userId: number;
+
+    @IsInt()
+    status: number;
+
+    @IsInt()
+    value: number;
+
+    @IsDate()
+    timeStart: Date
+
+    @IsDate()
+    timeEnd: Date
 }

@@ -30,8 +30,6 @@ export class MqttService implements OnModuleDestroy {
 			const data = Number(message.toString());
 			const {device, flag} = await this.getDevice(topic, this.greenhouseId);
 			if (device) {
-				device['value']=data
-				
 				try {
 					const record = await this.prisma.sensorRecord.create({
 						data: {

@@ -1,5 +1,5 @@
 import { ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreateControllerDTO, CreateSensorDTO, DeviceAdafruitDto } from './dto';
+import { CreateControllerDTO, CreateDeviceSchedulerDTO, CreateSensorDTO, DeviceAdafruitDto } from './dto';
 import { MqttService } from 'src/mqtt/mqtt.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
@@ -106,30 +106,76 @@ export class DevicesService {
         }
     }
 
-    // async getListDevices(pageOffset: number , limit: number) {
-    //     const totalRecord = await this.prisma.controller.count()
-    //     const totalPages = Math.ceil(totalRecord/ limit)
-    //     const listOfDevices = await this.prisma.controller.findMany({
-    //         select: {
-    //             CID: true,
-    //             deviceType: true,
-    //             status: true,
-    //             controllerType: true
-    //         },
-    //         skip: (pageOffset - 1)*limit,
-    //         take: limit
-    //     })
+    async createScheduler(deviceDto: CreateDeviceSchedulerDTO) {
+        // Check whether the device exists
+        const device = await this.getDevice(deviceDto.deviceId)
+        if (!device) {
+           throw new NotFoundException("Device doesn't exist"); 
+        }
+        // Create real-time scheduler
+        
+        // Create scheduler in database
+    }
 
-    //     return {
-    //         data: listOfDevices,
-    //         pagination: {
-    //             currentPage: pageOffset,
-    //             totalPages: totalPages,
-    //             totalItems: totalRecord,
-    //             limit: limit,
-    //           },
-    //     }
-    // }
+    async getControllers(GID: number, pageOffset: number, limit: number) {
+        try {
+            const totalController = await this.prisma.controller.count({
+                where: {
+                    greenHouseID: GID
+                },
+            })
+            const totalPages = Math.ceil(totalController/ limit)
+            const listOfcontrollers = await this.prisma.controller.findMany({
+                where: {
+                    greenHouseID: GID
+                },
+                take: limit,
+                skip: (pageOffset - 1)*limit
+            })
+            return {
+                data: listOfcontrollers,
+                pagination: {
+                    currentPage: pageOffset,
+                    totalPages: totalPages,
+                    totalItems: totalController,
+                    limit: limit,
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            throw new InternalServerErrorException("An error occurred! Please try again.");
+        }
+    }
+
+    async getSensors(GID: number, pageOffset: number, limit: number) {
+        try {
+            const totalSensor = await this.prisma.sensor.count({
+                where: {
+                    greenHouseID: GID
+                },
+            })
+            const totalPages = Math.ceil(totalSensor / limit)
+            const listOfSensors = await this.prisma.sensor.findMany({
+                where: {
+                    greenHouseID: GID
+                },
+                take: limit,
+                skip: (pageOffset - 1)*limit
+            })
+            return {
+                data: listOfSensors,
+                pagination: {
+                    currentPage: pageOffset,
+                    totalPages: totalPages,
+                    totalItems: totalSensor,
+                    limit: limit,
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            throw new InternalServerErrorException("An error occurred! Please try again.");
+        }
+    }
 
     async subscribeToDevice() {
         const devices = await this.prisma.sensor.findMany({

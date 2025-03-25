@@ -25,6 +25,7 @@ model User {
   controllerRecord ControllerRecord[]
   controller      Controller[] 
   sensor         Sensor[]
+  scheduler      Scheduler[]
 }
 
 model Sensor {
@@ -65,6 +66,8 @@ model Controller {
 
   user        User?         @relation(fields: [userID], references: [ID])
   userID      Int?
+
+  controllerScheduler ControllerScheduler[]
 }
 
 model ControllerRecord {
@@ -78,4 +81,28 @@ model ControllerRecord {
 
   user        User?         @relation(fields: [userID], references: [ID])
   userID      Int?
+}
+
+model Scheduler {
+  SID           Int           @id @default(autoincrement())
+  timeCreated   DateTime
+
+  user       User?         @relation(fields: [userID], references: [ID])
+  userID     Int
+  controllerScheduler ControllerScheduler[]
+}
+
+model ControllerScheduler {
+  status        Int           @default(0) // 0: off, 1: on
+  value         Int?           @default(0) // between 0-100
+  timeStart     DateTime
+  timeEnd       DateTime
+
+  device      Controller    @relation(fields: [deviceID] , references: [CID])
+  deviceID    Int
+
+  scheduler   Scheduler    @relation(fields: [schedulerID] , references: [SID])
+  schedulerID Int
+
+  @@id([deviceID, schedulerID])
 }
