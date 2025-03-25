@@ -7,10 +7,10 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { AppService } from './app.service';
 import { SseModule } from './sse/sse.module';
-import { BullModule } from '@nestjs/bullmq';
 import { EmailModule } from './email/email.module';
+import { SchedulerModule } from './scheduler/scheduler.module';
 
-@Module({
+@Module({ 
   controllers: [AppController],
   providers: [AppService],
   imports: [
@@ -20,13 +20,8 @@ import { EmailModule } from './email/email.module';
     PrismaModule, 
     UserModule, 
     SseModule,
-    BullModule.forRoot({
-      connection: {
-        host: 'localhost',
-        port: 6060,
-      },
-    }),
     EmailModule,
+    SchedulerModule,
   ],
 
 })

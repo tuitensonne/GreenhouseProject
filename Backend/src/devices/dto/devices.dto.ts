@@ -1,5 +1,4 @@
 import { IsDate, IsInt, IsOptional, IsString} from "class-validator";
-import exp from "constants";
 
 export class DeviceAdafruitDto {
     @IsInt()

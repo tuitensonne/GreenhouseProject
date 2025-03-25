@@ -12,5 +12,5 @@ export class EmailController {
     @Query('text') text: string
   ) {
     return this.emailService.sendEmail(to, subject, text);
-  }
-}
+  } 
+} 

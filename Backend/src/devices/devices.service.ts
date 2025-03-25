@@ -38,6 +38,13 @@ export class DevicesService {
                     }
                 }
             })
+            await this.prisma.controller.update({
+                where: { CID: devicesDto.deviceId },
+                data: {
+                    status: devicesDto.status,
+                    value: devicesDto.value
+                }
+            })
         } catch (error) {
             console.error(error);
             throw new InternalServerErrorException("An error occurred! Please try again.");
