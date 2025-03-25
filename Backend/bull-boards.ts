@@ -1,11 +1,11 @@
-import express from 'express';
-import { createBullBoard } from '@bull-board/api';
-import { BullAdapter } from '@bull-board/api/bullAdapter';
-import { ExpressAdapter } from '@bull-board/express';
-import Queue from 'bull';
+const express = require('express');
+const { createBullBoard } = require('@bull-board/api');
+const { BullAdapter } = require('@bull-board/api/bullAdapter');
+const { ExpressAdapter } = require('@bull-board/express');
+const Queue = require('bull');
 
 // Tạo queue Bull
-const myQueue = new Queue('scheduler', { redis: { host: 'localhost', port: 6060 } });
+const myQueue = new Queue('my-queue', { redis: { host: 'localhost', port: 6379 } });
 
 // Tạo adapter cho Bull Board
 const serverAdapter = new ExpressAdapter();
@@ -17,7 +17,7 @@ createBullBoard({
   serverAdapter,
 });
 
-// Tạo ứng dụng Express (hoặc lấy Express instance từ NestJS)
+// Tạo ứng dụng Express
 const app = express();
 app.use('/admin/queues', serverAdapter.getRouter());
 
