@@ -2,21 +2,23 @@ import { Module } from '@nestjs/common';
 import { SchedulerService } from './scheduler.service';
 import { SchedulerController } from './scheduler.controller';
 import { BullModule } from '@nestjs/bull';
-import { MyQueueProcessor } from './scheduler.processor';
+import { SchedulerProcessor } from './scheduler.processor';
 
 @Module({
   imports: [
-    BullModule.forRoot({
-      redis: {
-        host: 'localhost',
-        port: 6060,
-      },
+    BullModule.forRootAsync({
+      useFactory: async () => ({
+        redis: {
+          host: process.env.REDIS_HOST,
+          port: Number(process.env.REDIS_PORT),
+        },
+      }),
     }),
     BullModule.registerQueue({
       name: 'scheduler',
     }),
   ],
   controllers: [SchedulerController],
-  providers: [SchedulerService, MyQueueProcessor],
+  providers: [SchedulerService, SchedulerProcessor],
 })
 export class SchedulerModule {}

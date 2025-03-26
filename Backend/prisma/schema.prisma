@@ -14,6 +14,7 @@ model GreenHouse {
 
   sensors     Sensor[]
   controllers Controller[]
+  userSubscribe UserGreenhouse[]
 }
 
 model User {
@@ -22,10 +23,21 @@ model User {
   password  String @db.VarChar(100)
   username  String @db.VarChar(100)
 
+  greenhouseList UserGreenhouse[]
   controllerRecord ControllerRecord[]
   controller      Controller[] 
   sensor         Sensor[]
   scheduler      Scheduler[]
+  notification   Notification[]
+}
+
+model UserGreenhouse {
+  userId Int
+  greenhouseId Int 
+
+  user User @relation(fields: [userId], references: [ID])
+  greenhouse GreenHouse @relation(fields: [greenhouseId], references: [GID])
+  @@id([userId , greenhouseId])
 }
 
 model Sensor {
@@ -93,7 +105,6 @@ model Scheduler {
 }
 
 model ControllerScheduler {
-  status        Int           @default(0) // 0: off, 1: on
   value         Int?           @default(0) // between 0-100
   timeStart     DateTime
   timeEnd       DateTime
@@ -105,4 +116,13 @@ model ControllerScheduler {
   schedulerID Int
 
   @@id([deviceID, schedulerID])
+}
+
+model Notification {
+  NID           Int           @id @default(autoincrement())
+  message       String
+  dateCreated   DateTime
+
+  user        User?         @relation(fields: [userID], references: [ID])
+  userID      Int
 }

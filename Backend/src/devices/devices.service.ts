@@ -101,7 +101,7 @@ export class DevicesService {
                 }
             });
 
-            this.mqttService.subscribeToDeviceData(deviceDto.topic);
+            this.mqttService.subscribeToTopic(deviceDto.topic);
             return device;
         }  catch (error) { 
             if (error instanceof PrismaClientKnownRequestError) {
@@ -192,7 +192,7 @@ export class DevicesService {
             }
         });
         for (const device of devices) {
-            this.mqttService.subscribeToDeviceData(device.topic);
+            this.mqttService.subscribeToTopic(device.topic);
         }
     }
     
