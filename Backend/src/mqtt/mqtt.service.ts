@@ -48,7 +48,7 @@ export class MqttService implements OnModuleDestroy {
 					}
 				})
 
-				await this.prisma.sensor.update({
+				this.prisma.sensor.update({
 					where: {SID: device.SID},
 					data: {
 						value: data

@@ -25,7 +25,15 @@ export class DevicesService {
 
         // save record to database
         try {
-            await this.prisma.controllerRecord.create({
+            this.prisma.controller.update({
+                where: { CID: devicesDto.deviceId },
+                data: {
+                    status: devicesDto.status,
+                    value: devicesDto.value
+                }
+            })
+
+            this.prisma.controllerRecord.create({
                 data: {
                     status: devicesDto.status,
                     value: devicesDto.value,
@@ -39,13 +47,6 @@ export class DevicesService {
                 }
             })
             
-            await this.prisma.controller.update({
-                where: { CID: devicesDto.deviceId },
-                data: {
-                    status: devicesDto.status,
-                    value: devicesDto.value
-                }
-            })
         } catch (error) {
             console.error(error);
             throw new InternalServerErrorException("An error occurred! Please try again.");
@@ -207,4 +208,67 @@ export class DevicesService {
         }
         return device
     }
+
+    async getControllerRecord(id: number, pageOffset: number, limit: number) {
+        try {
+            const totalRecord = await this.prisma.controllerRecord.count({
+                where: {
+                    deviceID: id
+                },
+            })
+            const totalPages = Math.ceil(totalRecord/ limit)
+            const records = await this.prisma.controllerRecord.findMany({
+                where: {deviceID: id},
+                orderBy: {
+                    dateCreated: "desc"
+                },
+                take: limit,
+                skip: (pageOffset - 1)*limit
+            })
+            return {
+                data: records,
+                pagination: {
+                    currentPage: pageOffset,
+                    totalPages: totalPages,
+                    totalItems: totalRecord,
+                    limit: limit,
+                }
+            }
+        } catch(error) {
+            console.log(error)
+            throw new InternalServerErrorException("Error happenned when accessing database")
+        }
+    }
+
+    async getSensorRecord(id: number, pageOffset: number, limit: number) {
+        try {
+            const totalRecord = await this.prisma.sensorRecord.count({
+                where: {
+                    deviceID: id
+                },
+            })
+            const totalPages = Math.ceil(totalRecord/ limit)
+            const records = await this.prisma.sensorRecord.findMany({
+                where: {deviceID: id},
+                orderBy: {
+                    dateCreated: "desc"
+                },
+                take: limit,
+                skip: (pageOffset - 1)*limit
+            })
+            return {
+                data: records,
+                pagination: {
+                    currentPage: pageOffset,
+                    totalPages: totalPages,
+                    totalItems: totalRecord,
+                    limit: limit,
+                }
+            }
+        } catch(error) {
+            console.log(error)
+            throw new InternalServerErrorException("Error happenned when accessing database")
+        }
+    }
+    
 }

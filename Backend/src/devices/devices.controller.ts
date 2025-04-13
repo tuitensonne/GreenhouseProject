@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { DevicesService } from './devices.service';
 import { CreateControllerDTO, CreateDeviceSchedulerDTO, CreateSensorDTO, DeviceAdafruitDto } from './dto';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -51,5 +51,23 @@ export class DevicesController {
     @Query('limit') limit: number = 10,
   ) {
     return this.devicesService.getSensors(greenhouseId, pageOffset, limit);
+  }
+
+  @Get('sensor-records/:id')
+  async getSensorRecord(
+    @Param('id') id: number,
+    @Query('pageOffset') pageOffset: number,
+    @Query('limit') limit: number
+  ) {
+    return this.devicesService.getSensorRecord(id, pageOffset, limit)
+  }
+
+  @Get('controller-records/:id')
+  async getControllerRecord(
+    @Param('id') id: number,
+    @Query('pageOffset') pageOffset: number,
+    @Query('limit') limit: number
+  ) {
+    return this.devicesService.getControllerRecord(id, pageOffset, limit)
   }
 }

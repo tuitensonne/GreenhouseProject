@@ -18,7 +18,6 @@ export class EmailService {
     }
 
     async sendEmail(to: string, text: any) {
-        console.log(to)
         const mailOptions = {
           from: `"Greenhouse HCMUT" <${process.env.EMAIL_USER}>`,
           to,
