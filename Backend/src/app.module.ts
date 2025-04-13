@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { AppService } from './app.service';
 import { EmailModule } from './email/email.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({ 
   controllers: [AppController],
@@ -20,6 +21,7 @@ import { SchedulerModule } from './scheduler/scheduler.module';
     UserModule, 
     EmailModule,
     SchedulerModule,
+    NotificationModule,
   ],
 
 })

@@ -26,4 +26,9 @@ export class AuthController {
     return this.authService.signup(authDto)
   }
   
+  @Post('refreshToken')
+  refreshToken(@Body('refreshToken') refreshToken: string) {
+    return this.authService.refreshToken(refreshToken)
+  }
+
 }

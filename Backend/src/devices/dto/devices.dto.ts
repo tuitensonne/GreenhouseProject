@@ -1,11 +1,14 @@
-import { IsDate, IsInt, IsOptional, IsString} from "class-validator";
+import { IsDate, IsInt, IsNumber, IsOptional, IsString} from "class-validator";
 
 export class DeviceAdafruitDto {
     @IsInt()
     deviceId: number;
 
+    @IsNumber(
+        { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 2},
+        { message: 'Value must be a floating number' })
+        
     @IsInt()
-    @IsOptional()
     value: number = 0;
 
     @IsInt()
@@ -78,3 +81,4 @@ export class CreateDeviceSchedulerDTO {
     @IsDate()
     timeEnd: Date
 }
+

@@ -73,6 +73,7 @@ export class DevicesService {
             });
             return device;
         } catch (error) { 
+            console.log(error)
             if (error instanceof PrismaClientKnownRequestError) {
                 if (error.code === 'P2002') {
                     throw new ConflictException('Topic has been used');
@@ -104,6 +105,7 @@ export class DevicesService {
             this.mqttService.subscribeToTopic(deviceDto.topic);
             return device;
         }  catch (error) { 
+            console.log(error)
             if (error instanceof PrismaClientKnownRequestError) {
                 if (error.code === 'P2002') {
                     throw new ConflictException('Topic has been used');
@@ -155,7 +157,7 @@ export class DevicesService {
         }
     }
 
-    async getSensors(GID: number, pageOffset: number, limit: number) {
+    async getSensors(GID: number, pageOffset: number, limit: number) { 
         try {
             const totalSensor = await this.prisma.sensor.count({
                 where: {

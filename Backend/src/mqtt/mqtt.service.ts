@@ -1,7 +1,10 @@
 import { Injectable, InternalServerErrorException, NotFoundException, OnModuleDestroy } from '@nestjs/common';
 import * as mqtt from 'mqtt';
 import { filter, map, mergeMap, Observable, startWith, Subject } from 'rxjs';
+import { EmailService } from 'src/email/email.service';
+import { NotificationService } from 'src/notification/notification.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class MqttService implements OnModuleDestroy {
@@ -9,7 +12,12 @@ export class MqttService implements OnModuleDestroy {
 	private dataSubject = new Subject<any>();
 	private notificationSubject = new Subject<any>();
 
-	constructor(private readonly prisma: PrismaService) {
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly notificationService: NotificationService,
+		private readonly userService: UserService,
+		private readonly emailService: EmailService
+	) {
 		this.initializeMQTTClient();
 	}
 
@@ -39,6 +47,14 @@ export class MqttService implements OnModuleDestroy {
 						}
 					}
 				})
+
+				await this.prisma.sensor.update({
+					where: {SID: device.SID},
+					data: {
+						value: data
+					}
+				})
+
 				record['sensorType'] = device.sensorType;
 				record['greenhouseID'] = device.greenHouseID;
 				this.dataSubject.next([record]);
@@ -49,6 +65,28 @@ export class MqttService implements OnModuleDestroy {
 			
 			// This is for notification
 			if (device.maxValue && data > device.maxValue) {
+				const users = await this.userService.getAllUserSubGreenhouse(device.greenHouseID)
+				const greenhouse = await this.prisma.greenHouse.findUnique({
+					where: {
+						GID: device.greenHouseID
+					}
+				})
+
+				const content = {
+					greenhouseName: greenhouse?.name,
+					greenhouseLocation: greenhouse?.location,
+					greenhouseId: greenhouse?.GID,
+					sensorId: device.SID,
+					sensorType: device.sensorType,
+					maxValue: device.maxValue,
+					value: data
+				}
+				for (const user of users) {
+					await this.notificationService.createNotification(device, user.ID, data) 
+					if (user.useEmail4Noti){
+						this.emailService.sendEmail(user.email, content)
+					}
+				}
 				this.notificationSubject.next({device, data})
 			}
 		}
@@ -80,12 +118,11 @@ export class MqttService implements OnModuleDestroy {
 		return device;
 	}
 
-	async  sendSensorDataStream(greenhouseId: string): Promise<Observable<MessageEvent>> { 
+	async sendSensorDataStream(greenhouseId: string): Promise<Observable<MessageEvent>> { 
         const sensorTypes = ["earth", "light", "humidity", "temperature"];
         
-		// Take the latest record of four sensors
         const records = await Promise.all(
-            sensorTypes.map(async (type) => {
+            sensorTypes.map(async (type) => { 
                 const record = await this.prisma.sensorRecord.findFirst({
                     where: {
                         device: {
@@ -99,9 +136,8 @@ export class MqttService implements OnModuleDestroy {
                 return record ? { ...record, sensorType: type } : null;
             })
         );
-    
+		
         const filteredRecords = records.filter(record => record !== null);
-    
         return this.getData().pipe(	
             filter((data) => this.checkGreenhouse(data, +greenhouseId)),
 			map((data) => {
@@ -112,7 +148,6 @@ export class MqttService implements OnModuleDestroy {
         );
     }
 
-	// This is used to check whether the record belongs to the device that is in the greenhouse we want
     private checkGreenhouse(data: any, greenhouseId: number) {
         if (data[0].greenhouseID === greenhouseId) {
             return true
@@ -132,11 +167,15 @@ export class MqttService implements OnModuleDestroy {
 
 			filter((data) => data !== null), 
 			mergeMap(async ({ device, value }) => {
-				const notification = await this.createNotification(device, userId, value)
+				const notification = await this.prisma.notification.findFirst({
+					orderBy: {
+						dateCreated: "desc"
+					}
+				})
 				return new MessageEvent('message', { data: JSON.stringify([notification]) });
 			}),
 			startWith(new MessageEvent('message', { data: JSON.stringify(notification) }))
-			);			  
+		);			  
     }
 
 	private isUserSubscribedToGreenhouse(userId: number, greenhouseId: number) {
@@ -157,26 +196,6 @@ export class MqttService implements OnModuleDestroy {
 		})        
 		if (!notifications) throw new NotFoundException("User ID is not existed")
 		return notifications
-	}
-
-	private async createNotification(device: any, userId: number, data: number) {
-		try {
-			const notification = await this.prisma.notification.create({
-			  data: {
-				message: `Device ID: ${device.SID} of type ${device.sensorType} from greenhouse ${device.greenHouseID} has value ${data} exceeded the maximum value ${device.maxValue}`,
-				dateCreated: new Date(),
-				user: {
-					connect: { 
-						ID: userId 
-					}
-				}
-			  }
-			});
-			return notification
-		  } catch (err) {
-			console.error(err);
-			throw new InternalServerErrorException("Error happenned when creating notification in the database");
-		}
 	}
 
 	async sendDataToAdafruit(topic: string, value: number) {

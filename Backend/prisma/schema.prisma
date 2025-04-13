@@ -22,6 +22,7 @@ model User {
   email     String @unique @db.VarChar(100)
   password  String @db.VarChar(100)
   username  String @db.VarChar(100)
+  useEmail4Noti Boolean @default(true)
 
   greenhouseList UserGreenhouse[]
   controllerRecord ControllerRecord[]
@@ -33,7 +34,7 @@ model User {
 
 model UserGreenhouse {
   userId Int
-  greenhouseId Int 
+  greenhouseId Int
 
   user User @relation(fields: [userId], references: [ID])
   greenhouse GreenHouse @relation(fields: [greenhouseId], references: [GID])
@@ -43,21 +44,23 @@ model UserGreenhouse {
 model Sensor {
   SID           Int           @id @default(autoincrement())
   maxValue      Int?
-  deviceType          String
-  sensorType          String
+  deviceType    String
+  sensorType    String
+  value         Float         @default(0)
   topic         String        @unique
+
   records     SensorRecord[]
 
   greenHouse  GreenHouse    @relation(fields: [greenHouseID], references: [GID])
   greenHouseID Int
 
-  user        User?         @relation(fields: [userID], references: [ID])
-  userID      Int?
+  user        User         @relation(fields: [userID], references: [ID])
+  userID      Int
 }
 
 model SensorRecord {
   SRID          Int         @id @default(autoincrement())
-  value         Int
+  value         Float
   dateCreated   DateTime
 
   device      Sensor        @relation(fields: [deviceID] , references: [SID])
@@ -69,15 +72,15 @@ model Controller {
   deviceType          String
   controllerType      String
   status        Int           @default(0) // 0: off, 1: on
-  value         Int?           @default(0) // between 0-100
+  value         Int           @default(0) // between 0-100
   topic         String        @unique
   records     ControllerRecord[]
 
   greenHouse  GreenHouse    @relation(fields: [greenHouseID], references: [GID])
   greenHouseID Int
 
-  user        User?         @relation(fields: [userID], references: [ID])
-  userID      Int?
+  user        User         @relation(fields: [userID], references: [ID])
+  userID      Int
 
   controllerScheduler ControllerScheduler[]
 }
@@ -85,7 +88,7 @@ model Controller {
 model ControllerRecord {
   CRID          Int         @id @default(autoincrement())
   status        Int           @default(0) // 0: off, 1: on
-  value         Int?           @default(0) // between 0-100
+  value         Int           @default(0) // between 0-100
   dateCreated   DateTime
 
   device      Controller    @relation(fields: [deviceID] , references: [CID])
@@ -105,7 +108,8 @@ model Scheduler {
 }
 
 model ControllerScheduler {
-  value         Int?           @default(0) // between 0-100
+  value         Int           @default(0) // between 0-100
+  status        Int           @default(0) // 0: off, 1: on
   timeStart     DateTime
   timeEnd       DateTime
 
@@ -122,6 +126,7 @@ model Notification {
   NID           Int           @id @default(autoincrement())
   message       String
   dateCreated   DateTime
+  isRead        Boolean
 
   user        User?         @relation(fields: [userID], references: [ID])
   userID      Int

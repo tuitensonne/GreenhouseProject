@@ -4,6 +4,7 @@ import { CreateControllerDTO, CreateDeviceSchedulerDTO, CreateSensorDTO, DeviceA
 import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('devices')
+@UseGuards(AuthGuard)
 @UsePipes(new ValidationPipe({
   transform: true,
   whitelist: true,
@@ -15,48 +16,40 @@ import { AuthGuard } from 'src/auth/auth.guard';
 export class DevicesController {
   constructor(private readonly devicesService: DevicesService) {}
 
-  @UseGuards(AuthGuard)
-  @Post('sendData')
-  async sendData(@Body() device : DeviceAdafruitDto) {
+  @Post('data')
+  async sendData(@Body() device: DeviceAdafruitDto) {
     return this.devicesService.sendData(device);
   }
 
-  @UseGuards(AuthGuard)
-  @Post('addController')
-  async addDevice(@Body() device: CreateControllerDTO) {
+  @Post('controllers')
+  async addController(@Body() device: CreateControllerDTO) {
     return this.devicesService.addController(device);
   }
- 
-  @UseGuards(AuthGuard)
-  @Post('addSensor')
+
+  @Post('sensors')
   async addSensor(@Body() device: CreateSensorDTO) {
     return this.devicesService.addSensor(device);
   }
 
-  @UseGuards(AuthGuard)
-  @Post('createScheduler')
+  @Post('schedulers')
   async createScheduler(@Body() device: CreateDeviceSchedulerDTO) {
     return this.devicesService.createScheduler(device);
   }
 
-  @UseGuards(AuthGuard)
-  @Get('getControllers')
+  @Get('controllers')
   async getControllers(
-    @Query('greenhouseId') GID: number,
+    @Query('greenhouseId') greenhouseId: number,
     @Query('pageOffset') pageOffset: number = 1,
-    @Query('limit') limit: number = 10
+    @Query('limit') limit: number = 10,
   ) {
-    return this.devicesService.getControllers(GID, pageOffset, limit);
+    return this.devicesService.getControllers(greenhouseId, pageOffset, limit);
   }
-
-  @UseGuards(AuthGuard)
-  @Get('getSensors')
+  @Get('sensors')
   async getSensors(
-    @Query('greenhouseId') GID: number,
+    @Query('greenhouseId') greenhouseId: number,
     @Query('pageOffset') pageOffset: number = 1,
-    @Query('limit') limit: number = 10
+    @Query('limit') limit: number = 10,
   ) {
-    return this.devicesService.getSensors(GID, pageOffset, limit);
+    return this.devicesService.getSensors(greenhouseId, pageOffset, limit);
   }
-
 }
