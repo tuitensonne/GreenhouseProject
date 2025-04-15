@@ -81,10 +81,11 @@ export class MqttService implements OnModuleDestroy {
 					maxValue: device.maxValue,
 					value: data
 				}
+				
 				for (const user of users) {
 					await this.notificationService.createNotification(device, user.ID, data) 
 					if (user.useEmail4Noti){
-						this.emailService.sendEmail(user.email, content)
+						this.emailService.sendEmail(user.email,'⚠️ Alert: Sensor Value Exceeded Threshold' ,content)
 					}
 				}
 				this.notificationSubject.next({device, data})

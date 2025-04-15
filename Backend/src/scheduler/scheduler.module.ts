@@ -3,6 +3,7 @@ import { SchedulerService } from './scheduler.service';
 import { SchedulerController } from './scheduler.controller';
 import { BullModule } from '@nestjs/bull';
 import { SchedulerProcessor } from './scheduler.processor';
+import { DevicesModule } from 'src/devices/devices.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { SchedulerProcessor } from './scheduler.processor';
     BullModule.registerQueue({
       name: 'scheduler',
     }),
+    DevicesModule
   ],
   controllers: [SchedulerController],
   providers: [SchedulerService, SchedulerProcessor],

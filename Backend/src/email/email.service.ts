@@ -17,11 +17,11 @@ export class EmailService {
         this.transporter = nodemailer.createTransport(transport);
     }
 
-    async sendEmail(to: string, text: any) {
+    async sendEmail(to: string,subject: string ,text: any) {
         const mailOptions = {
           from: `"Greenhouse HCMUT" <${process.env.EMAIL_USER}>`,
           to,
-          subject:  '⚠️ Alert: Sensor Value Exceeded Threshold',
+          subject,
           html: `
             <div style="font-family: Arial, sans-serif; background-color: #f8f8f8; padding: 20px;">
               <div style="background-color: #fff; padding: 20px; border-radius: 10px; border-left: 6px solid #ff4d4f; max-width: 900px; margin: auto; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">

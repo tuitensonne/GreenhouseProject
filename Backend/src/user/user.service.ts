@@ -5,7 +5,41 @@ import { UpdatePasswordDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
+
   constructor (private readonly prisma: PrismaService) {}
+  
+  async subscribeToGreenhouse(userId: number, greenhouseID: number[]) {
+    try {
+      for (const i of greenhouseID) {
+        await this.prisma.userGreenhouse.createMany({
+          data: [
+            {userId: userId, greenhouseId: i}
+          ]
+        })
+      } 
+      return {
+        message: "User successfully subscribes to Greenhouses"
+      }
+    } catch (error) {
+
+    }
+  }
+
+  async changeEmailNotiOption(userId: number, mailOptions: boolean) {
+    try {
+      await this.prisma.user.update({
+        where: {ID: userId},
+        data: {
+          useEmail4Noti: mailOptions
+        }
+      })
+      return {
+        message: "User successfully turns on getting email notification"
+      }
+    } catch (error) {
+
+    }
+  }
 
   async updatePassword(email: string, updateUserDto: UpdatePasswordDto) {
     const user = await this.prisma.user.findUnique({

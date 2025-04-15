@@ -36,8 +36,8 @@ model UserGreenhouse {
   userId Int
   greenhouseId Int
 
-  user User @relation(fields: [userId], references: [ID])
-  greenhouse GreenHouse @relation(fields: [greenhouseId], references: [GID])
+  user User @relation(fields: [userId], references: [ID], onDelete: Cascade, onUpdate: Cascade)
+  greenhouse GreenHouse @relation(fields: [greenhouseId], references: [GID],  onDelete: Cascade, onUpdate: Cascade)
   @@id([userId , greenhouseId])
 }
 
@@ -63,7 +63,7 @@ model SensorRecord {
   value         Float
   dateCreated   DateTime
 
-  device      Sensor        @relation(fields: [deviceID] , references: [SID])
+  device      Sensor        @relation(fields: [deviceID] , references: [SID], onDelete: Cascade, onUpdate: Cascade)
   deviceID      Int
 }
 
@@ -90,8 +90,9 @@ model ControllerRecord {
   status        Int           @default(0) // 0: off, 1: on
   value         Int           @default(0) // between 0-100
   dateCreated   DateTime
+  auto          Boolean       @default(false)
 
-  device      Controller    @relation(fields: [deviceID] , references: [CID])
+  device      Controller    @relation(fields: [deviceID] , references: [CID], onDelete: Cascade, onUpdate: Cascade)
   deviceID    Int
 
   user        User?         @relation(fields: [userID], references: [ID])
@@ -101,22 +102,30 @@ model ControllerRecord {
 model Scheduler {
   SID           Int           @id @default(autoincrement())
   timeCreated   DateTime
+  timeUpdated   DateTime
+  value         Int           @default(0) 
+  timeStart     DateTime
+  duration      Int         
+  recurrenceRule  RECURENCERULE @default(NOT_REPEAT)
+  recurrenceEnd   DateTime?      
 
-  user       User?         @relation(fields: [userID], references: [ID])
+  user       User         @relation(fields: [userID], references: [ID])
   userID     Int
   controllerScheduler ControllerScheduler[]
 }
 
-model ControllerScheduler {
-  value         Int           @default(0) // between 0-100
-  status        Int           @default(0) // 0: off, 1: on
-  timeStart     DateTime
-  timeEnd       DateTime
+enum RECURENCERULE {
+  NOT_REPEAT
+  MONTHLY
+  WEEKLY
+  DAILY
+}
 
-  device      Controller    @relation(fields: [deviceID] , references: [CID])
+model ControllerScheduler {
+  device      Controller    @relation(fields: [deviceID] , references: [CID], onDelete: Cascade, onUpdate: Cascade)
   deviceID    Int
 
-  scheduler   Scheduler    @relation(fields: [schedulerID] , references: [SID])
+  scheduler   Scheduler    @relation(fields: [schedulerID] , references: [SID], onDelete: Cascade, onUpdate: Cascade)
   schedulerID Int
 
   @@id([deviceID, schedulerID])
@@ -128,6 +137,6 @@ model Notification {
   dateCreated   DateTime
   isRead        Boolean
 
-  user        User?         @relation(fields: [userID], references: [ID])
+  user        User         @relation(fields: [userID], references: [ID], onDelete: Cascade, onUpdate: Cascade)
   userID      Int
 }

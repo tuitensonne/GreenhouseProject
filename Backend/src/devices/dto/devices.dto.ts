@@ -7,8 +7,6 @@ export class DeviceAdafruitDto {
     @IsNumber(
         { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 2},
         { message: 'Value must be a floating number' })
-        
-    @IsInt()
     value: number = 0;
 
     @IsInt()

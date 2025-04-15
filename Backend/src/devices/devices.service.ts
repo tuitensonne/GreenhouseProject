@@ -12,7 +12,7 @@ export class DevicesService {
         this.subscribeToDevice();
     }
 
-    async sendData(devicesDto: DeviceAdafruitDto) {
+    async sendData(devicesDto: DeviceAdafruitDto, auto: boolean = false) {
         // Check whether the topic exists
         const device = await this.getDevice(devicesDto.deviceId)
         // Send data to Adafruit IO
@@ -38,6 +38,7 @@ export class DevicesService {
                     status: devicesDto.status,
                     value: devicesDto.value,
                     dateCreated: new Date(),
+                    auto: auto,
                     device: {
                         connect: { CID: device.CID }
                     },
@@ -192,7 +193,7 @@ export class DevicesService {
         const devices = await this.prisma.sensor.findMany({
             select: {
                 topic: true
-            }
+            } 
         });
         for (const device of devices) {
             this.mqttService.subscribeToTopic(device.topic);
