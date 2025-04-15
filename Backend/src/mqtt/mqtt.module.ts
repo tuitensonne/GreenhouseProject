@@ -1,10 +1,13 @@
 import { Global, Module } from '@nestjs/common';
 import { MqttService } from './mqtt.service';
-import { DevicesModule } from 'src/devices/devices.module';
+import { MqttController } from './mqtt.controller';
+import { NotificationModule } from 'src/notification/notification.module';
+import { UserModule } from 'src/user/user.module';
 
 @Global()
 @Module({
-  imports: [DevicesModule],
+  imports: [NotificationModule, UserModule],
+  controllers: [MqttController],
   providers: [MqttService],
   exports: [MqttService],
 })

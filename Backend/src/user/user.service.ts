@@ -1,26 +1,83 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { ForbiddenException, Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import * as argon from "argon2"
+import { UpdatePasswordDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+
+  constructor (private readonly prisma: PrismaService) {}
+  
+  async subscribeToGreenhouse(userId: number, greenhouseID: number[]) {
+    try {
+      for (const i of greenhouseID) {
+        await this.prisma.userGreenhouse.createMany({
+          data: [
+            {userId: userId, greenhouseId: i}
+          ]
+        })
+      } 
+      return {
+        message: "User successfully subscribes to Greenhouses"
+      }
+    } catch (error) {
+
+    }
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async changeEmailNotiOption(userId: number, mailOptions: boolean) {
+    try {
+      await this.prisma.user.update({
+        where: {ID: userId},
+        data: {
+          useEmail4Noti: mailOptions
+        }
+      })
+      return {
+        message: "User successfully turns on getting email notification"
+      }
+    } catch (error) {
+
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
+  async updatePassword(email: string, updateUserDto: UpdatePasswordDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: email }
+    });
+  
+    if (!user) {
+      throw new ForbiddenException("Email incorrect");
+    }
+  
+    const checkUser = await argon.verify(user.password, updateUserDto.oldPassword); // ⬅️ thêm await
+  
+    if (!checkUser) {
+      throw new ForbiddenException("Password incorrect");
+    }
+  
+    const newPassword = await argon.hash(updateUserDto.newPassword);
+  
+    const response = await this.prisma.user.update({
+      where: { email: user.email },
+      data: {
+        password: newPassword
+      }
+    });
+  
+    return response;
+  }  
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async getAllUserSubGreenhouse(greenhouseId: number) {
+    const users = await this.prisma.user.findMany({
+      where: {
+				greenhouseList: {
+          some: {
+            greenhouseId: greenhouseId,
+          }
+        }
+			}
+    })
+    return users
   }
 }
