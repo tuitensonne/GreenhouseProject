@@ -74,4 +74,4 @@ $ node bull-boards.ts
 
 ## Addition Information
 
-Use-case and Database design is written in file **Description.pdf**
+Use-case and Database design are written in file **Description.pdf**
