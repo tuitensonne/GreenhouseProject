@@ -21,7 +21,7 @@ export class SchedulerController {
   async getJobsByUser(
     @Req() req,
     @Query('pageOffset') pageOffset: number = 1,
-    @Query('limit') limit: number = 5
+    @Query('limit') limit: number = 10
   ) {
     return this.schedulerService.getJobsByUser(req.user.su, pageOffset, limit)
   }

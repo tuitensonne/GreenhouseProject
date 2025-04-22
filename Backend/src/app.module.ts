@@ -9,6 +9,7 @@ import { AppService } from './app.service';
 import { EmailModule } from './email/email.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
 import { NotificationModule } from './notification/notification.module';
+import { GreenhouseModule } from './greenhouse/greenhouse.module';
 
 @Module({ 
   controllers: [AppController],
@@ -22,6 +23,7 @@ import { NotificationModule } from './notification/notification.module';
     EmailModule,
     SchedulerModule,
     NotificationModule,
+    GreenhouseModule,
   ],
 
 })

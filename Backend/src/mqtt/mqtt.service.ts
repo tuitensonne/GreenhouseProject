@@ -185,7 +185,7 @@ export class MqttService implements OnModuleDestroy {
 		});
 	}
 
-	private async getUserNotifications(userId: number, limit: number=15) {
+	private async getUserNotifications(userId: number, limit: number = 10) {
 		const notifications = await this.prisma.notification.findMany({
 			where: {
 				userID : userId

@@ -56,8 +56,8 @@ export class DevicesController {
   @Get('sensor-records/:id')
   async getSensorRecord(
     @Param('id') id: number,
-    @Query('pageOffset') pageOffset: number,
-    @Query('limit') limit: number
+    @Query('pageOffset') pageOffset: number = 1,
+    @Query('limit') limit: number = 10
   ) {
     return this.devicesService.getSensorRecord(id, pageOffset, limit)
   }
@@ -65,8 +65,8 @@ export class DevicesController {
   @Get('controller-records/:id')
   async getControllerRecord(
     @Param('id') id: number,
-    @Query('pageOffset') pageOffset: number,
-    @Query('limit') limit: number
+    @Query('pageOffset') pageOffset: number = 1,
+    @Query('limit') limit: number = 10
   ) {
     return this.devicesService.getControllerRecord(id, pageOffset, limit)
   }
