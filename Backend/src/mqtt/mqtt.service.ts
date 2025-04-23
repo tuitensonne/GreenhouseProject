@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException, NotFoundException, OnModuleDestroy } from '@nestjs/common';
 import * as mqtt from 'mqtt';
-import { filter, map, mergeMap, Observable, startWith, Subject } from 'rxjs';
+import { filter, map, mergeMap, Observable, startWith, Subject, interval, of, merge } from 'rxjs';
 import { EmailService } from 'src/email/email.service';
 import { NotificationService } from 'src/notification/notification.service';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -119,35 +119,45 @@ export class MqttService implements OnModuleDestroy {
 		return device;
 	}
 
-	async sendSensorDataStream(greenhouseId: string): Promise<Observable<MessageEvent>> { 
-        const sensorTypes = ["earth", "light", "humidity", "temperature"];
-        
-        const records = await Promise.all(
-            sensorTypes.map(async (type) => { 
-                const record = await this.prisma.sensorRecord.findFirst({
-                    where: {
-                        device: {
-                            greenHouseID: +greenhouseId,
-                            sensorType: type
-                        }
-                    },
-                    orderBy: { dateCreated: "desc" }
-                });
-                
-                return record ? { ...record, sensorType: type } : null;
-            })
-        );
+	async sendSensorDataStream(greenhouseId: string): Promise<Observable<MessageEvent>> {
+		const sensorTypes = ["earth", "light", "humidity", "temperature"];
 		
-        const filteredRecords = records.filter(record => record !== null);
-        return this.getData().pipe(	
-            filter((data) => this.checkGreenhouse(data, +greenhouseId)),
+		const records = await Promise.all(
+		  sensorTypes.map(async (type) => { 
+			const record = await this.prisma.sensorRecord.findFirst({
+			  where: {
+				device: {
+				  greenHouseID: +greenhouseId,
+				  sensorType: type
+				}
+			  },
+			  orderBy: { dateCreated: "desc" }
+			});
+			
+			return record ? { ...record, sensorType: type } : null;
+		  })
+		);
+		
+		const filteredRecords = records.filter(record => record !== null);
+		
+		const heartbeat$ = interval(44000).pipe(
+		  map(() => new MessageEvent('message', { data: JSON.stringify({ type: 'heartbeat' }) }))
+		);
+		
+		return merge(
+		  of(new MessageEvent('message', { data: JSON.stringify(filteredRecords) })),
+		  
+		  this.getData().pipe(
+			filter((data) => this.checkGreenhouse(data, +greenhouseId)),
 			map((data) => {
-				const { greenhouseID, ...rest } = data;
-				return new MessageEvent('message', { data: JSON.stringify(rest) });
-			}),
-			startWith(new MessageEvent('message', { data: JSON.stringify(filteredRecords) }))
-        );
-    }
+			  const { greenhouseID, ...rest } = data;
+			  return new MessageEvent('message', { data: JSON.stringify(rest) });
+			})
+		  ),
+		  
+		  heartbeat$
+		);
+	}
 
     private checkGreenhouse(data: any, greenhouseId: number) {
         if (data[0].greenhouseID === greenhouseId) {
@@ -156,28 +166,35 @@ export class MqttService implements OnModuleDestroy {
         return false
     }
 
-    async sendNotification(userId: number , limit: number = 15): Promise<Observable<MessageEvent>> {
-		// Take those latest notification in database 
-		const notification = await this.getUserNotifications(userId, limit)
-		return this.getNotification().pipe(
-			// Check whether the user subscribe to the notification of specific greenhouse
+    async sendNotification(userId: number, limit: number = 15): Promise<Observable<MessageEvent>> {
+		const notification = await this.getUserNotifications(userId, limit);
+		
+		const heartbeat$ = interval(44000).pipe(
+		  map(() => new MessageEvent('message', { data: JSON.stringify({ type: 'heartbeat' }) }))
+		);
+		
+		return merge(
+		  of(new MessageEvent('message', { data: JSON.stringify(notification) })),
+		  
+		  this.getNotification().pipe(
 			mergeMap(async ({ device, value }) => {
-				const isSubscribed = await this.isUserSubscribedToGreenhouse(userId, device.greenHouseID);
-				return isSubscribed ? { device, value } : null;
+			  const isSubscribed = await this.isUserSubscribedToGreenhouse(userId, device.greenHouseID);
+			  return isSubscribed ? { device, value } : null;
 			}),
-
-			filter((data) => data !== null), 
+			filter((data) => data !== null),
 			mergeMap(async ({ device, value }) => {
-				const notification = await this.prisma.notification.findFirst({
-					orderBy: {
-						dateCreated: "desc"
-					}
-				})
-				return new MessageEvent('message', { data: JSON.stringify([notification]) });
-			}),
-			startWith(new MessageEvent('message', { data: JSON.stringify(notification) }))
-		);			  
-    }
+			  const notification = await this.prisma.notification.findFirst({
+				orderBy: {
+				  dateCreated: "desc"
+				}
+			  });
+			  return new MessageEvent('message', { data: JSON.stringify([notification]) });
+			})
+		  ),
+		  
+		  heartbeat$
+		);
+	}
 
 	private isUserSubscribedToGreenhouse(userId: number, greenhouseId: number) {
 		return this.prisma.userGreenhouse.findFirst({
