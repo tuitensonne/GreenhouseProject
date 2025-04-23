@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Query, UseGuards, UsePipes, Validat
 import { DevicesService } from './devices.service';
 import { CreateControllerDTO, CreateDeviceSchedulerDTO, CreateSensorDTO, DeviceAdafruitDto } from './dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { SchedulerService } from 'src/scheduler/scheduler.service';
 
 @Controller('devices')
 @UseGuards(AuthGuard)
@@ -14,7 +15,10 @@ import { AuthGuard } from 'src/auth/auth.guard';
   },
 }))
 export class DevicesController {
-  constructor(private readonly devicesService: DevicesService) {}
+  constructor(
+    private readonly devicesService: DevicesService,
+    private readonly schedulerService: SchedulerService
+  ) {}
 
   @Post('data')
   async sendData(@Body() device: DeviceAdafruitDto) {

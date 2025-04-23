@@ -17,13 +17,13 @@ import { UpdateScheduleDto } from './dto/updatedScheduler.dto';
 export class SchedulerController {
   constructor(private readonly schedulerService: SchedulerService) {}
 
-  @Get() 
-  async getJobsByUser(
-    @Req() req,
+  @Get(':id') 
+  async getJobsByGreenhouse(
+    @Param('id') greenhouseId: number,
     @Query('pageOffset') pageOffset: number = 1,
     @Query('limit') limit: number = 10
   ) {
-    return this.schedulerService.getJobsByUser(req.user.su, pageOffset, limit)
+    return this.schedulerService.getJobsByGreenhouse(greenhouseId, pageOffset, limit)
   }
 
   @Post()
@@ -49,5 +49,12 @@ export class SchedulerController {
     @Param('id') scheduleId : number
   ) {
     return this.schedulerService.deleteJob(scheduleId)
+  }
+
+  @Get('controller/:id')
+  async getControllerByScheduleId(
+    @Param('id') id: number,
+  ) {
+    return this.schedulerService.getControllerByScheduleId(id);
   }
 }

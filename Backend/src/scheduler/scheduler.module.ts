@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { SchedulerService } from './scheduler.service';
 import { SchedulerController } from './scheduler.controller';
 import { BullModule } from '@nestjs/bull';
 import { SchedulerProcessor } from './scheduler.processor';
 import { DevicesModule } from 'src/devices/devices.module';
 
+@Global()
 @Module({
   imports: [
     BullModule.forRootAsync({
@@ -22,5 +23,6 @@ import { DevicesModule } from 'src/devices/devices.module';
   ],
   controllers: [SchedulerController],
   providers: [SchedulerService, SchedulerProcessor],
+  exports: [SchedulerService],
 })
 export class SchedulerModule {}

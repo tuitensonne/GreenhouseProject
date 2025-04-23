@@ -11,28 +11,51 @@ export class SchedulerService {
         private readonly prisma: PrismaService
     ) {}
 
-    async getJobsByUser(userId: number, pageOffset: number, limit: number) {
+    async getControllerByScheduleId(scheduleId: number) {
+        const controller = await this.prisma.controllerScheduler.findMany({
+            where: { schedulerID: scheduleId },
+            select: { device: {} }
+        });
+        if (!controller) throw new NotFoundException("Not found controller ID");
+        return controller;
+    }
+
+    async getJobsByGreenhouse(greenhouseId: number, pageOffset: number, limit: number) {
         const totalRecord = await this.prisma.scheduler.count({
-            where: { userID: userId }
-        })
-        const totalPages = Math.ceil(totalRecord / limit)
-
-        const jobs = await this.prisma.scheduler.findMany({
-            where: {userID: userId},
-            orderBy: { timeCreated: 'desc'},
-            take: limit,
-            skip: (pageOffset - 1)*limit
-        })
-
-        return {
-            data: jobs,
-            pagination: {
-                currentPage: pageOffset,
-                totalPages: totalPages,
-                totalItems: totalRecord,
-                limit: limit,
+          where: {
+            controllerScheduler: {
+              some: {
+                device: {
+                  greenHouseID: greenhouseId
+                }
+              }
             }
-        }
+          }
+        });        
+        const totalPages = Math.ceil(totalRecord / limit);        
+        const jobs = await this.prisma.scheduler.findMany({
+          where: {
+            controllerScheduler: {
+              some: {
+                device: {
+                  greenHouseID: greenhouseId
+                }
+              }
+            }
+          },
+          orderBy: { timeCreated: 'desc' },
+          take: limit,
+          skip: (pageOffset - 1) * limit,
+        });        
+        return {
+          data: jobs,
+          pagination: {
+            currentPage: pageOffset,
+            totalPages: totalPages,
+            totalItems: totalRecord,
+            limit: limit,
+          }
+        };
     }
 
     async deleteJob(scheduleId: number) {
