@@ -48,7 +48,7 @@ export class MqttService implements OnModuleDestroy {
 					}
 				})
 
-				this.prisma.sensor.update({
+				await this.prisma.sensor.update({
 					where: {SID: device.SID},
 					data: {
 						value: data
@@ -63,7 +63,6 @@ export class MqttService implements OnModuleDestroy {
 				throw new InternalServerErrorException("An error occurred! Please try again.");
 			}
 			
-			// This is for notification
 			if (device.maxValue && data > device.maxValue) {
 				const users = await this.userService.getAllUserSubGreenhouse(device.greenHouseID)
 				const greenhouse = await this.prisma.greenHouse.findUnique({
