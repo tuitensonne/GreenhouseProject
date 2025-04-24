@@ -13,19 +13,15 @@ export class DevicesService {
     }
 
     async sendData(devicesDto: DeviceAdafruitDto, auto: boolean = false) {
-        // Check whether the topic exists
         const device = await this.getDevice(devicesDto.deviceId)
-        // Send data to Adafruit IO
         try {
             await this.mqttService.sendDataToAdafruit(device.topic, devicesDto.value);
         } catch (error) {
             console.log(error);
             throw new InternalServerErrorException("An error occurred! Please try again.");
         }
-
-        // save record to database
         try {
-            this.prisma.controller.update({
+            await this.prisma.controller.update({
                 where: { CID: devicesDto.deviceId },
                 data: {
                     status: devicesDto.status,
@@ -33,7 +29,7 @@ export class DevicesService {
                 }
             })
 
-            this.prisma.controllerRecord.create({
+            await this.prisma.controllerRecord.create({
                 data: {
                     status: devicesDto.status,
                     value: devicesDto.value,
@@ -47,7 +43,7 @@ export class DevicesService {
                     }
                 }
             })
-            
+
         } catch (error) {
             console.error(error);
             throw new InternalServerErrorException("An error occurred! Please try again.");
