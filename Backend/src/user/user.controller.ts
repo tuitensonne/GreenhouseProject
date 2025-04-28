@@ -22,12 +22,13 @@ export class UserController {
     return this.userService.updatePassword(req.user.email, updatePassword);
   }
 
-  @Post(':id') 
+  @Post(':id/:option') 
   subscribeToGreenhouse(
+    @Param('option') option: boolean,
     @Param('id') userId: number,
-    @Body() greenhouseID: number[]
+    @Body() body: {greenhouseID: number[]}
   ) {
-    return this.userService.subscribeToGreenhouse(userId, greenhouseID)
+    return this.userService.subscribeToGreenhouse(userId, body.greenhouseID, option)
   }
 
   @Patch(':id') 

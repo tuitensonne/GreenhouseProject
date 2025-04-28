@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from "argon2"
 import { UpdatePasswordDto } from './dto/create-user.dto';
@@ -8,20 +8,27 @@ export class UserService {
 
   constructor (private readonly prisma: PrismaService) {}
   
-  async subscribeToGreenhouse(userId: number, greenhouseID: number[]) {
+  async subscribeToGreenhouse(userId: number, greenhouseID: number[], option: boolean) {
     try {
       for (const i of greenhouseID) {
-        await this.prisma.userGreenhouse.createMany({
-          data: [
-            {userId: userId, greenhouseId: i}
-          ]
-        })
+        if (option) { // create
+          await this.prisma.userGreenhouse.createMany({
+            data: [
+              {userId: userId, greenhouseId: i}
+            ]
+          })
+        } else {
+          await this.prisma.userGreenhouse.deleteMany({
+            where: {userId: userId, greenhouseId: i}
+          })
+        }
       } 
       return {
         message: "User successfully subscribes to Greenhouses"
       }
     } catch (error) {
-
+      console.log(error)
+      throw new InternalServerErrorException("Fail to subscribe")
     }
   }
 
