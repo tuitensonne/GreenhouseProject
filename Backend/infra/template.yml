@@ -1,14 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'RDS + Redis simple setup for default VPC'
+Description: 'RDS + Redis setup (default VPC)'
 
 Parameters:
   DBUsername:
     Type: String
   DBPassword:
     Type: String
-  Environment:
-    Type: String
-    Default: 'production'
 
 Resources:
   MyAppSecurityGroup:
@@ -22,6 +19,7 @@ Resources:
           ToPort: 65535
           CidrIp: 0.0.0.0/0
 
+  # PostgreSQL RDS
   MyAppDB:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -34,8 +32,9 @@ Resources:
       PubliclyAccessible: true
       BackupRetentionPeriod: 1
       VPCSecurityGroups:
-        - !Ref MyAppSecurityGroup
+        - !GetAtt MyAppSecurityGroup.GroupId
 
+  # Redis cluster
   MyAppRedis:
     Type: AWS::ElastiCache::CacheCluster
     Properties:
@@ -44,7 +43,7 @@ Resources:
       NumCacheNodes: 1
       ClusterName: myapp-cache
       VpcSecurityGroupIds:
-        - !GetAtt MyAppSecurityGroup.GroupId # ✅ fix
+        - !GetAtt MyAppSecurityGroup.GroupId
       PreferredAvailabilityZone: ap-southeast-1a
 
 Outputs:
