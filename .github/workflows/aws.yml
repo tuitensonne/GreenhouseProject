@@ -33,7 +33,7 @@ jobs:
       - name: Deploy infrastructure (RDS + Redis)
         uses: aws-actions/aws-cloudformation-github-deploy@v1.2.0
         with:
-          name: myapp-infra
+          name: myapp-infrastructure
           template: Backend/infra/template.yml
           capabilities: CAPABILITY_IAM
           parameter-overrides: |
