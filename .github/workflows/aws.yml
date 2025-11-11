@@ -42,23 +42,32 @@ jobs:
             Environment=production
           no-fail-on-empty-changeset: 1
 
-      # Step 3: Login to ECR
+      # Step 3: Login to Amazon ECR
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      # Step 4: Build & Push Docker Image
+      # Step 4: Create ECR Repository if it doesn't exist
+      - name: Create ECR repository if not exists
+        run: |
+          aws ecr describe-repositories --repository-names $ECR_REPOSITORY --region $AWS_REGION >/dev/null 2>&1 || \
+          aws ecr create-repository --repository-name $ECR_REPOSITORY --region $AWS_REGION
+        env:
+          AWS_REGION: ${{ env.AWS_REGION }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+
+      # Step 5: Build & Push Docker Image
       - name: Build and Push image
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f Dockerfile .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      # Step 5: Update ECS Task Definition
+      # Step 6: Update ECS Task Definition
       - name: Fill in new image ID
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
@@ -67,7 +76,7 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
-      # Step 6: Deploy ECS service
+      # Step 7: Deploy ECS service
       - name: Deploy ECS Task Definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
