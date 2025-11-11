@@ -1,0 +1,56 @@
+[33mcommit 857a77ac7ebb677947b6cf6227c0ab856cbe2e33[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mupdate/backend[m[33m)[m
+Merge: 781b47d 7e84f0f
+Author: son.tran22 <son.trannam.bku@gmail.com>
+Date:   Tue Mar 25 21:00:34 2025 +0700
+
+    Merge branch 'update/backend' of https://github.com/tuitensonne/GreenhouseProject into update/backend
+
+[33mcommit 781b47d7446afa59f1b1f47d7b9a710c93facb73[m
+Author: son.tran22 <son.trannam.bku@gmail.com>
+Date:   Tue Mar 25 21:00:28 2025 +0700
+
+    Adding refresh token, initialize bull, redis for scheduler
+
+[33mcommit 2da5884e3717ac01956db25a0a5c18f5b1d197c0[m
+Author: son.tran22 <son.trannam.bku@gmail.com>
+Date:   Tue Mar 25 21:00:12 2025 +0700
+
+    Adding refresh token, initialize bull, redis for scheduler
+
+[33mcommit 7e84f0f657c81e6aed1031d420bcdad224ea89c0[m[33m ([m[1;31morigin/update/backend[m[33m)[m
+Author: sontapcode <156274946+tuitensonne@users.noreply.github.com>
+Date:   Tue Mar 25 20:56:28 2025 +0700
+
+    Update devices.service.ts
+    
+    Adding update on controller
+
+[33mcommit 51315fc9ea85ed8d0b59adfa471ab8cb90209ef4[m
+Author: son.tran22 <son.trannam.bku@gmail.com>
+Date:   Tue Mar 25 16:01:11 2025 +0700
+
+    Adding api to get lists of controllers and sensors
+
+[33mcommit d4fe4ebb0da8c4d39a928c3c490a24fe36eb52bd[m
+Author: son.tran22 <son.trannam.bku@gmail.com>
+Date:   Mon Mar 24 15:47:39 2025 +0700
+
+    Updated on mqtt Service
+
+[33mcommit 3d4ba17771831a596fb4ab3633039a17abd3ca3d[m
+Author: son.tran22 <son.trannam.bku@gmail.com>
+Date:   Mon Mar 24 13:06:02 2025 +0700
+
+    Fixing on jwt key
+
+[33mcommit cfa96d43987fbbcf1a1f42ebdbd7710507431529[m
+Author: son.tran22 <son.trannam.bku@gmail.com>
+Date:   Mon Mar 24 10:44:26 2025 +0700
+
+    Adding backend
+
+[33mcommit d94a688f496c729de1e74c85c424f6592d6f69d1[m
+Author: sontapcode <156274946+tuitensonne@users.noreply.github.com>
+Date:   Mon Mar 24 10:40:19 2025 +0700
+
+    Initial commit

@@ -2,7 +2,7 @@ name: Build and Deploy to ECS
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
   AWS_REGION: ap-southeast-1
@@ -34,7 +34,7 @@ jobs:
         uses: aws-actions/aws-cloudformation-github-deploy@v1.2.0
         with:
           name: myapp-infra
-          template: Backend/infra/template.yml  
+          template: Backend/infra/template.yml
           capabilities: CAPABILITY_IAM
           parameter-overrides: |
             DBUsername=${{ secrets.DB_USERNAME }},
