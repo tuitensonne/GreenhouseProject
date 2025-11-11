@@ -11,7 +11,7 @@ export class UserService {
   async subscribeToGreenhouse(userId: number, greenhouseID: number[], option: boolean) {
     try {
       for (const i of greenhouseID) {
-        if (option) { // create
+        if (option) {
           await this.prisma.userGreenhouse.createMany({
             data: [
               {userId: userId, greenhouseId: i}
