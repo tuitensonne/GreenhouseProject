@@ -34,7 +34,7 @@ jobs:
         uses: aws-actions/aws-cloudformation-github-deploy@v1.2.0
         with:
           name: myapp-infra
-          template: infra/template.yml
+          template: Backend/infra/template.yml  
           capabilities: CAPABILITY_IAM
           parameter-overrides: |
             DBUsername=${{ secrets.DB_USERNAME }},
