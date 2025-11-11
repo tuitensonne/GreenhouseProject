@@ -6,6 +6,9 @@ Parameters:
     Type: String
   DBPassword:
     Type: String
+  Environment:
+    Type: String
+    Default: 'production'
 
 Resources:
   MyAppSecurityGroup:
