@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Infrastructure for MyApp (RDS + ElastiCache)'
+
+Parameters:
+  DBUsername:
+    Type: String
+  DBPassword:
+    Type: String
+  Environment:
+    Type: String
+    Default: production
+
+Resources:
+  MyAppDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: postgres
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: 20
+      DBName: myappdb
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword
+      PubliclyAccessible: false
+      BackupRetentionPeriod: 1
+
+  MyAppRedis:
+    Type: AWS::ElastiCache::CacheCluster
+    Properties:
+      Engine: redis
+      CacheNodeType: cache.t3.micro
+      NumCacheNodes: 1
+      ClusterName: myapp-cache
+
+Outputs:
+  RdsEndpoint:
+    Description: 'RDS endpoint'
+    Value: !GetAtt MyAppDB.Endpoint.Address
+  RedisEndpoint:
+    Description: 'Redis endpoint'
+    Value: !GetAtt MyAppRedis.RedisEndpoint.Address
