@@ -6,9 +6,6 @@ Parameters:
     Type: String
   DBPassword:
     Type: String
-  Environment:
-    Type: String
-    Default: 'production'
 
 Resources:
   MyAppSecurityGroup:
@@ -44,7 +41,7 @@ Resources:
       NumCacheNodes: 1
       ClusterName: myapp-cache
       VpcSecurityGroupIds:
-        - !Ref MyAppSecurityGroup
+        - !GetAtt MyAppSecurityGroup.GroupId # ✅ fix
       PreferredAvailabilityZone: ap-southeast-1a
 
 Outputs:
