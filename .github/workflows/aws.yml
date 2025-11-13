@@ -67,6 +67,18 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
+      # Step X: Create ECS cluster if not exists
+      - name: Create ECS cluster if not exists
+        run: |
+          set -e
+          STATUS=$(aws ecs describe-clusters --clusters "$ECS_CLUSTER" --region "$AWS_REGION" --query 'failures[0].reason' --output text || true)
+          if [ "$STATUS" = "MISSING" ] || [ "$STATUS" = "null" ]; then
+            echo "Creating ECS cluster: $ECS_CLUSTER in $AWS_REGION"
+            aws ecs create-cluster --cluster-name "$ECS_CLUSTER" --region "$AWS_REGION" >/dev/null
+          else
+            echo "ECS cluster $ECS_CLUSTER already exists."
+          fi
+
       # Step 6: Update ECS Task Definition
       - name: Fill in new image ID
         id: task-def
